@@ -1,0 +1,11 @@
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\bin\Debug\netcoreapp2.0\CityInfo.API.deps.json
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\bin\Debug\netcoreapp2.0\CityInfo.API.runtimeconfig.json
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\bin\Debug\netcoreapp2.0\CityInfo.API.runtimeconfig.dev.json
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\bin\Debug\netcoreapp2.0\CityInfo.API.dll
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\bin\Debug\netcoreapp2.0\CityInfo.API.pdb
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\obj\Debug\netcoreapp2.0\CityInfo.API.csproj.CoreCompileInputs.cache
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\obj\Debug\netcoreapp2.0\CityInfo.API.AssemblyInfoInputs.cache
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\obj\Debug\netcoreapp2.0\CityInfo.API.AssemblyInfo.cs
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\obj\Debug\netcoreapp2.0\CityInfo.API.dll
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\obj\Debug\netcoreapp2.0\CityInfo.API.pdb
+D:\Vatan\SoniProjects\CityInfo.API\CityInfo.API\CityInfo.API\obj\Debug\netcoreapp2.0\CityInfo.API.csprojAssemblyReference.cache
