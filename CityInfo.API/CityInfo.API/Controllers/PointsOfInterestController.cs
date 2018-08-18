@@ -15,11 +15,14 @@ namespace CityInfo.API.Controllers
     {
         private ILogger<PointsOfInterestController> _logger;
         private IMailService _mailService;
+        private ICityInfoRepository _cityInfoRepository;
 
-        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService localMailService)
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService localMailService,
+            ICityInfoRepository cityInfoRepository)
         {
             _logger = logger;
             _mailService = localMailService;
+            _cityInfoRepository = cityInfoRepository;
         }
 
         [HttpGet("{cityId}/pointofinterest")]
@@ -27,44 +30,73 @@ namespace CityInfo.API.Controllers
         {
             try
             {
-                throw new Exception("I m exception msz");
-                var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
-
-                if (city == null)
+                if (!_cityInfoRepository.CityExists(cityId))
                 {
-                    _logger.LogInformation($"City with id {cityId} not found");
+                    _logger.LogInformation($"City not found with id {cityId}");
                     return NotFound();
                 }
-                
-                    return Ok(city.PointOfIntrest);
+                //throw new Exception("I m exception msz");
+                //var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
+
+                //if (city == null)
+                //{
+                //    _logger.LogInformation($"City with id {cityId} not found");
+                //    return NotFound();
+                //}
+
+                var pointOfInterestForCity = _cityInfoRepository.GetPointOfInterestForCity(cityId);
+
+                //var POIList = new List<PointOfIntrestDto>();
+                //foreach (var item in pointOfInterestForCity)
+                //{
+                //    POIList.Add(new PointOfIntrestDto()
+                //    {
+                //        Id = item.Id,
+                //        Name = item.Name,
+                //        Description = item.Description
+                //    });
+                //}
+
+                var POIList = AutoMapper.Mapper.Map<IEnumerable<PointOfIntrestDto>>(pointOfInterestForCity);
+
+                return Ok(POIList);
             }
             catch (Exception ex)
             {
-                _logger.LogCritical("Exception while getting info for city id {cityId}",ex);
+                _logger.LogCritical("Exception while getting info for city id {cityId}", ex);
                 return StatusCode(500, "Problem while handling req.");
             }
-            
+
         }
 
         [HttpGet("{cityId}/pointofinterest/{id}", Name = "GetPointOfInterest")]
         public IActionResult GetPointOfInterest(int cityId, int id)
         {
-            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
+            //var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
 
-            if (city == null)
+            if (!_cityInfoRepository.CityExists(cityId))
             {
                 return NotFound();
             }
             else
             {
-                var poi = city.PointOfIntrest.FirstOrDefault(x => x.Id == id);
+                var poi = _cityInfoRepository.GetPointOfInterestForCity(cityId, id);
                 if (poi == null)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    return Ok(poi);
+                    return Ok(
+                    /*new PointOfIntrestDto()
+                {
+                    Id = poi.Id,
+                    Name = poi.Name,
+                    Description = poi.Description
+                }*/
+
+                    AutoMapper.Mapper.Map<PointOfIntrestDto>(poi)
+                    );
                 }
             }
         }
@@ -94,17 +126,18 @@ namespace CityInfo.API.Controllers
                 return NotFound("City with given id not exist");
             }
 
-            var pointOfInterestCollection = CitiesDataStore.Current.Cities.SelectMany(c => c.PointOfIntrest);
+            var pointOfInterestCollection = CitiesDataStore.Current.Cities.SelectMany(c => c.PointsOfInterest);
             var maxOfPointOfInterestId = pointOfInterestCollection.Max(p => p.Id);
 
-            var finalPointOfInterest = new PointOfIntrestDto() {
+            var finalPointOfInterest = new PointOfIntrestDto()
+            {
                 Id = maxOfPointOfInterestId,
                 Description = pointOfInterestForCreation.Description,
                 Name = pointOfInterestForCreation.Name
             };
 
             var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
-            city.PointOfIntrest.Add(finalPointOfInterest);
+            city.PointsOfInterest.Add(finalPointOfInterest);
 
             return CreatedAtRoute("GetPointOfInterest", new { cityId = cityId, id = finalPointOfInterest.Id }, finalPointOfInterest);
         }
@@ -135,13 +168,13 @@ namespace CityInfo.API.Controllers
                 return NotFound("City with given id not exist");
             }
 
-            var IsPOIExist = CitiesDataStore.Current.Cities.SelectMany(x => x.PointOfIntrest).Any(x => x.Id == id);
+            var IsPOIExist = CitiesDataStore.Current.Cities.SelectMany(x => x.PointsOfInterest).Any(x => x.Id == id);
             if (!IsPOIExist)
             {
                 return NotFound("POI with given id not exist");
             }
 
-            var POI = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId).PointOfIntrest.FirstOrDefault(x => x.Id == id);
+            var POI = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId).PointsOfInterest.FirstOrDefault(x => x.Id == id);
 
             POI.Name = pointOfInterestForUpdateDto.Name;
             POI.Description = pointOfInterestForUpdateDto.Description;
@@ -178,13 +211,13 @@ namespace CityInfo.API.Controllers
                 return NotFound("City with given id not exist");
             }
 
-            var IsPOIExist = CitiesDataStore.Current.Cities.SelectMany(x => x.PointOfIntrest).Any(x => x.Id == id);
+            var IsPOIExist = CitiesDataStore.Current.Cities.SelectMany(x => x.PointsOfInterest).Any(x => x.Id == id);
             if (!IsPOIExist)
             {
                 return NotFound("POI with given id not exist");
             }
 
-            var POIFromStore = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId).PointOfIntrest.FirstOrDefault(x => x.Id == id);
+            var POIFromStore = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId).PointsOfInterest.FirstOrDefault(x => x.Id == id);
 
             var POIToPatch = new PointOfInterestForUpdateDto()
             {
@@ -209,7 +242,7 @@ namespace CityInfo.API.Controllers
 
         [HttpDelete("{cityId}/pointofinterest/{id}")]
         public IActionResult DeletePointOfInterest(int cityId, int id)
-        {   
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -222,20 +255,20 @@ namespace CityInfo.API.Controllers
                 return NotFound("City with given id not exist");
             }
 
-            var IsPOIExist = CitiesDataStore.Current.Cities.SelectMany(x => x.PointOfIntrest).Any(x => x.Id == id);
+            var IsPOIExist = CitiesDataStore.Current.Cities.SelectMany(x => x.PointsOfInterest).Any(x => x.Id == id);
             if (!IsPOIExist)
             {
                 return NotFound("POI with given id not exist");
             }
 
             var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
-            var POI = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId).PointOfIntrest.FirstOrDefault(x => x.Id == id);
+            var POI = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId).PointsOfInterest.FirstOrDefault(x => x.Id == id);
 
-          var v =   city.PointOfIntrest.Remove(POI);
+            var v = city.PointsOfInterest.Remove(POI);
 
             _mailService.Send("Point of interest was deleted", $"POI: {POI.Name} was deleted.");
 
             return NoContent();
-        } 
+        }
     }
 }

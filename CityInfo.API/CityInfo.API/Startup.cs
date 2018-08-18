@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CityInfo.API.Entities;
 using CityInfo.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -43,13 +45,17 @@ namespace CityInfo.API
 
             #if DEBUG
                         services.AddTransient<IMailService, LocalMailService>();
-            #else
+#else
                         services.AddTransient<IMailService, CloudMailService>();
-            #endif
+#endif
+
+            var conString = Startup.Configuration["connectionStrings:cityInfoDBConnectionString"];
+            services.AddDbContext<CityInfoContext>(o => o.UseSqlServer(conString));
+            services.AddScoped<ICityInfoRepository, CityInfoRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, CityInfoContext cityInfoContext)
         {
             loggerFactory.AddDebug();
 
@@ -60,11 +66,19 @@ namespace CityInfo.API
                 app.UseDeveloperExceptionPage();
             }
 
+            cityInfoContext.EnsureSeedDataForContext();
             //app.Run(async (context) =>
             //{
             //    await context.Response.WriteAsync("Hello World!");
             //});
             app.UseStatusCodePages();
+            AutoMapper.Mapper.Initialize(cfg=> {
+                cfg.CreateMap<Entities.City, Models.CityWithoutPointOfInterestDto>();
+
+                cfg.CreateMap<Entities.City, Models.CityDto>();
+                cfg.CreateMap<Entities.PointOfInterest, Models.PointOfIntrestDto>();
+                //cfg.CreateMap<List<Entities.PointOfInterest>, List<Models.PointOfIntrestDto>>();
+            });
             app.UseMvc();
             //app.UseMvcWithDefaultRoute();
         }

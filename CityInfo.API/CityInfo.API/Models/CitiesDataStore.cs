@@ -20,7 +20,7 @@ namespace CityInfo.API.Models
                     Id=1,
                     Name="New York",
                     Description="Anamika",
-                    PointOfIntrest = new List<PointOfIntrestDto>(){
+                    PointsOfInterest = new List<PointOfIntrestDto>(){
                         new PointOfIntrestDto(){ Id=101,Name="New", Description="New Descrip"},
                         new PointOfIntrestDto(){ Id=201,Name="New", Description="New Descrip"},
                         new PointOfIntrestDto(){ Id=301,Name="New", Description="New Descrip"}
@@ -32,7 +32,7 @@ namespace CityInfo.API.Models
                     Id=2,
                     Name="Old York",
                     Description="Anamika",
-                    PointOfIntrest = new List<PointOfIntrestDto>(){
+                    PointsOfInterest = new List<PointOfIntrestDto>(){
                         new PointOfIntrestDto(){ Id=102,Name="Old", Description="Old Descrip"}
                     }
 
@@ -42,7 +42,7 @@ namespace CityInfo.API.Models
                     Id=3,
                     Name="Mid York",
                     Description="Anamika",
-                    PointOfIntrest = new List<PointOfIntrestDto>(){
+                    PointsOfInterest = new List<PointOfIntrestDto>(){
                         new PointOfIntrestDto(){ Id=103,Name="Mid", Description="Mid Descrip"}
                     }
 
