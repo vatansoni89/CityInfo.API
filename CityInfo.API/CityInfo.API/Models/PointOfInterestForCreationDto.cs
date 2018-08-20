@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CityInfo.API.Models
 {
-    public class PointOfInterestForCreation
+    public class PointOfInterestForCreationDto
     {
         [Required(ErrorMessage ="Its req vatan.")]
         [MaxLength(50, ErrorMessage ="Max length is 50 vatan")]
